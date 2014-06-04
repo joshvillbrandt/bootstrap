@@ -101,7 +101,7 @@ describe('typeahead tests', function () {
 
       $scope.result = $scope.states[0];
 
-      var element = prepareInputEl('<div><input ng-model="result" typeahead="state as state.name for state in states"></div>');
+      var element = prepareInputEl('<div><input ng-model="result" typeahead="state.name as state.name for state in states"></div>');
       var inputEl = findInput(element);
 
       expect(inputEl.val()).toEqual('Alaska');
@@ -382,7 +382,7 @@ describe('typeahead tests', function () {
       triggerKeyDown(element, 13);
 
       expect($scope.result).toEqual('AL');
-      expect(inputEl.val()).toEqual('AL');
+      expect(inputEl.val()).toEqual('Alaska');
     });
   });
 
@@ -483,13 +483,14 @@ describe('typeahead tests', function () {
       expect(inputEl.val()).toEqual('');
     });
 
-    it('issue 786 - name of internal model should not conflict with scope model name', function () {
-      $scope.state = $scope.states[0];
-      var element = prepareInputEl('<div><input ng-model="state" typeahead="state as state.name for state in states | filter:$viewValue"></div>');
-      var inputEl = findInput(element);
+    // not sure this applies anymore given change in #2041
+    // it('issue 786 - name of internal model should not conflict with scope model name', function () {
+    //   $scope.state = $scope.states[0];
+    //   var element = prepareInputEl('<div><input ng-model="state" typeahead="state as state.name for state in states | filter:$viewValue"></div>');
+    //   var inputEl = findInput(element);
 
-      expect(inputEl.val()).toEqual('Alaska');
-    });
+    //   expect(inputEl.val()).toEqual('Alaska');
+    // });
 
     it('issue 863 - it should work correctly with input type="email"', function () {
 
