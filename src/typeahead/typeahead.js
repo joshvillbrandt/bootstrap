@@ -41,7 +41,7 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       //SUPPORTED ATTRIBUTES (OPTIONS)
 
       //minimal no of characters that needs to be entered before typeahead kicks-in
-      var minSearch = originalScope.$eval(attrs.typeaheadMinLength) || 1;
+      var minSearch = attrs.typeaheadMinLength ? originalScope.$eval(attrs.typeaheadMinLength) : 1;
 
       //minimal wait time after last character typed before typehead kicks-in
       var waitTime = originalScope.$eval(attrs.typeaheadWaitMs) || 0;
@@ -58,6 +58,8 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
       var inputFormatter = attrs.typeaheadInputFormatter ? $parse(attrs.typeaheadInputFormatter) : undefined;
 
       var appendToBody =  attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
+
+      var openOnFocus = originalScope.$eval(attrs.typeaheadOpenOnFocus) || false;
 
       //INTERNAL VARIABLES
 
@@ -186,13 +188,10 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
         }
       };
 
-      //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
-      //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
-      modelCtrl.$parsers.unshift(function (inputValue) {
-
+      function parseInput(inputValue) {
         hasFocus = true;
 
-        if (inputValue && inputValue.length >= minSearch) {
+        if (inputValue.length >= minSearch) {
           if (waitTime > 0) {
             cancelPreviousTimeout();
             scheduleSearchWithTimeout(inputValue);
@@ -217,7 +216,11 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
             return undefined;
           }
         }
-      });
+      }
+      
+      //plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
+      //$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
+      modelCtrl.$parsers.unshift(parseInput);
 
       modelCtrl.$formatters.push(function (modelValue) {
 
@@ -293,6 +296,12 @@ angular.module('ui.bootstrap.typeahead', ['ui.bootstrap.position', 'ui.bootstrap
 
           resetMatches();
           scope.$digest();
+        }
+      });
+      
+      element.bind('focus', function (evt) {
+        if (openOnFocus) {
+          parseInput(evt.target.value);
         }
       });
 
